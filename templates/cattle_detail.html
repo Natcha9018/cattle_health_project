@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}รายละเอียดโค {{ c.name|default:"(ยังไม่มีชื่อ)" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Card แสดงข้อมูลโค -->
+    <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">📋 ข้อมูลโค</h5>
+    </div>
+    <div class="card-body">
+        <p><strong>หมายเลข:</strong> {{ c.tag_no }}</p>
+        <p><strong>ชื่อ:</strong> {{ c.name|default:"-" }}</p>
+        <p><strong>เพศ:</strong> {{ c.get_gender_display }}</p>
+        <p><strong>สายพันธุ์:</strong> {{ c.breed|default:"-" }}</p>
+        <p><strong>ประเภท:</strong> {{ c.category|default:"-" }}</p>
+        <p><strong>คอก/โรงเรือน:</strong> {{ c.housing|default:"-" }}</p>
+    </div>
+</div>
+
+<!-- ตารางอาหาร -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">🍽 ตารางการให้อาหาร</h5>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>Ration ID(ชื่อสูตรอาหาร)</th>
+                    <th>เวลาให้อาหาร</th>
+                    <th>อาหารสด (กก.)</th>
+                    <th>อาหารแห้ง (กก.)</th>
+                    <th>เสริม</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ration in c.rations.all %}
+                <tr>
+                    <td>{{ ration.ration_id }}</td>
+                    <td>{{ ration.feeding_time }}</td>
+                    <td>{{ ration.fresh_weight }}</td>
+                    <td>{{ ration.dry_weight }}</td>
+                    <td>{{ ration.supplement|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">ยังไม่มีข้อมูล</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- วัคซีน -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">💉 ประวัติการฉีดวัคซีน</h5>
+    </div>
+    <div class="card-body">
+        <ul>
+            {% for v in c.vaccinations.all %}
+                <li>{{ v.vaccine_name }} - {{ v.vaccine_date|date:"d/m/Y" }} (หมอ: {{ v.doctor_name|default:"-" }})</li>
+            {% empty %}
+                <li>ยังไม่มีข้อมูลวัคซีน</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<!-- HealthCheck -->
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h5>📊 ประวัติสุขภาพ</h5>
+    <a href="{% url 'cattle:add_healthcheck' c.id %}" class="btn btn-success btn-sm">+ เพิ่ม HealthCheck</a>
+</div>
+
+
+    <!-- Back Button -->
+    <a href="{% url 'cattle:select_cattle_for_healthcheck' %}" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> กลับ
+    </a>
+
+</div>
+{% endblock %}

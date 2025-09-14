@@ -1,0 +1,1 @@
+web: gunicorn cattle_health_project.wsgi

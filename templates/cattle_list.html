@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}รายการโค{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- หัวข้อ + ปุ่ม filter/search -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <h3 class="fw-bold mb-2 mb-md-0">รายการโค</h3>
+    </div>
+
+    <div class="d-flex flex-wrap mb-3 gap-2">
+        <!-- ปุ่ม Filter -->
+        <a href="{% url 'cattle:cattle_list' %}" class="btn btn-outline-primary btn-sm">โคทั้งหมด</a>
+        <a href="{% url 'cattle:cattle_list' %}?for_sale=1" class="btn btn-outline-success btn-sm">โครอขาย</a>
+        <a href="{% url 'cattle:cattle_list' %}?sick=1" class="btn btn-outline-danger btn-sm">โคป่วย</a>
+
+        <!-- ฟอร์มค้นหา -->
+        <form method="get" class="ms-auto d-flex flex-grow-1 flex-md-grow-0">
+            <input type="text" name="q" class="form-control me-2" placeholder="ค้นหาจากหมายเลขประจำตัว" value="{{ query|default:'' }}">
+            <button type="submit" class="btn btn-primary">ค้นหา</button>
+        </form>
+    </div>
+
+    <!-- ตารางโค -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered text-center align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>หมายเลขประจำตัว</th>
+                            <th>ชื่อโค</th>
+                            <th>สายพันธุ์</th>
+                            <th>เพศ</th>
+                            <th>สถานะล่าสุด</th>
+                            <th>การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cattle in cattle_list %}
+                        <tr>
+                            <td>{{ cattle.tag_no }}</td>
+                            <td>{{ cattle.name|default:"(ยังไม่มีชื่อ)" }}</td>
+                            <td>{{ cattle.breed|default:"-" }}</td>
+                            <td>
+                                {% if cattle.gender == "male" %}ตัวผู้
+                                {% elif cattle.gender == "female" %}ตัวเมีย
+                                {% else %}-{% endif %}
+                            </td>
+                           <td>
+                                {% if cattle.latest_status == 'forsale' %}
+                                    <span class="badge bg-success">พร้อมขาย</span>
+                                {% elif cattle.latest_status == 'sick' %}
+                                    <span class="badge bg-danger">ป่วย</span>
+                                {% elif cattle.latest_status == 'healthy' %}
+                                    <span class="badge bg-secondary">ปกติ</span>
+                                {% else %}
+                                    <span class="badge bg-dark">-</span>
+                                {% endif %}
+                            </td>
+                         
+                            <td class="d-flex flex-wrap justify-content-center gap-1">
+                                <a href="{% url 'cattle:cattle_detail' cattle.id %}" class="btn btn-sm btn-info">รายละเอียด</a>
+                                <a href="{% url 'cattle:cattle_edit' cattle.id %}" class="btn btn-sm btn-warning">แก้ไข</a>
+                                <a href="{% url 'cattle:cattle_delete' cattle.id %}" class="btn btn-sm btn-danger" onclick="return confirm('คุณต้องการลบโค {{ cattle.tag_no }} จริงหรือไม่?');">ลบ</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-muted">ไม่มีข้อมูลโค</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

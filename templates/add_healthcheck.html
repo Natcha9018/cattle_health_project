@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}บันทึก HealthCheck สำหรับ {{ cattle.name|default:"(ยังไม่มีชื่อ)" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>บันทึก HealthCheck สำหรับ {{ cattle.name|default:"(ยังไม่มีชื่อ)" }}</h2>
+
+    <!-- ข้อความ error / success -->
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" action="{% url 'cattle:add_healthcheck' cattle.id %}" id="combinedForm">
+                {% csrf_token %}
+
+                <!-- HealthCheck (หลัก) -->
+                <div class="row g-3 mb-2">
+                    <div class="col-md-3">
+                        {{ hc_form.check_date.label_tag }} {{ hc_form.check_date }}
+                        {% if hc_form.check_date.errors %}<div class="text-danger small">{{ hc_form.check_date.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        {{ hc_form.temperature.label_tag }} {{ hc_form.temperature }}
+                        {% if hc_form.temperature.errors %}<div class="text-danger small">{{ hc_form.temperature.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        {{ hc_form.heart_rate.label_tag }} {{ hc_form.heart_rate }}
+                        {% if hc_form.heart_rate.errors %}<div class="text-danger small">{{ hc_form.heart_rate.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        {{ hc_form.weight.label_tag }} {{ hc_form.weight }}
+                        {% if hc_form.weight.errors %}<div class="text-danger small">{{ hc_form.weight.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="{{ hc_form.status.id_for_label }}" class="form-label">{{ hc_form.status.label }}</label>
+                        <select name="{{ hc_form.status.html_name }}" id="{{ hc_form.status.id_for_label }}" class="form-select">
+                            {% for val, text in hc_form.fields.status.choices %}
+                                <option value="{{ val }}" {% if hc_form.initial.status == val %}selected{% endif %}>
+                                    {% if val == 'healthy' %}✅ {% elif val == 'sick' %}❌ {% elif val == 'forsale' %}💰 {% endif %}{{ text }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if hc_form.status.errors %}
+                            <div class="text-danger small">{{ hc_form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ hc_form.notes.label_tag }} {{ hc_form.notes }}
+                        {% if hc_form.notes.errors %}<div class="text-danger small">{{ hc_form.notes.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- ปุ่มเลือกจะเพิ่มอะไรบ้าง -->
+                <div class="mb-3">
+                    <button type="button" id="toggleVax" class="btn btn-outline-warning btn-sm me-1">
+                        💉 <span class="visually-hidden">เพิ่มวัคซีน</span>
+                        เพิ่มวัคซีน
+                    </button>
+                    <button type="button" id="toggleRation" class="btn btn-outline-success btn-sm me-1">
+                        🍽 <span class="visually-hidden">เพิ่มการให้อาหาร</span>
+                        เพิ่มการให้อาหาร
+                    </button>
+                    <button type="button" id="toggleCal" class="btn btn-outline-primary btn-sm">
+                        📅 <span class="visually-hidden">เพิ่มกิจกรรมปฏิทิน</span>
+                        เพิ่มกิจกรรมปฏิทิน
+                    </button>
+                </div>
+
+                <!-- Vaccination Section -->
+                <div id="vaxSection" style="display: none;" class="card card-body mb-3">
+                    <h6>เพิ่มวัคซีน</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            {{ vax_form.vaccine_name.label_tag }} {{ vax_form.vaccine_name }}
+                            {% if vax_form.vaccine_name.errors %}<div class="text-danger small">{{ vax_form.vaccine_name.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ vax_form.vaccine_date.label_tag }} {{ vax_form.vaccine_date }}
+                            {% if vax_form.vaccine_date.errors %}<div class="text-danger small">{{ vax_form.vaccine_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ vax_form.next_due_date.label_tag }} {{ vax_form.next_due_date }}
+                            {% if vax_form.next_due_date.errors %}<div class="text-danger small">{{ vax_form.next_due_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            {{ vax_form.doctor_name.label_tag }} {{ vax_form.doctor_name }}
+                            {% if vax_form.doctor_name.errors %}<div class="text-danger small">{{ vax_form.doctor_name.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FeedingRation Section -->
+                <div id="rationSection" style="display: none;" class="card card-body mb-3">
+                    <h6>เพิ่มการให้อาหาร</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            {{ ration_form.ration_id.label_tag }} {{ ration_form.ration_id }}
+                            {% if ration_form.ration_id.errors %}<div class="text-danger small">{{ ration_form.ration_id.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ ration_form.fresh_weight.label_tag }} {{ ration_form.fresh_weight }}
+                            {% if ration_form.fresh_weight.errors %}<div class="text-danger small">{{ ration_form.fresh_weight.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ ration_form.dry_weight.label_tag }} {{ ration_form.dry_weight }}
+                            {% if ration_form.dry_weight.errors %}<div class="text-danger small">{{ ration_form.dry_weight.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ ration_form.feeding_time.label_tag }} {{ ration_form.feeding_time }}
+                            {% if ration_form.feeding_time.errors %}<div class="text-danger small">{{ ration_form.feeding_time.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-12">
+                            {{ ration_form.supplement.label_tag }} {{ ration_form.supplement }}
+                            {% if ration_form.supplement.errors %}<div class="text-danger small">{{ ration_form.supplement.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Event Section -->
+                <div id="calSection" style="display: none;" class="card card-body mb-3">
+                    <h6>เพิ่มกิจกรรมปฏิทิน</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            {{ cal_form.title.label_tag }} {{ cal_form.title }}
+                            {% if cal_form.title.errors %}<div class="text-danger small">{{ cal_form.title.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ cal_form.start.label_tag }} {{ cal_form.start }}
+                            {% if cal_form.start.errors %}<div class="text-danger small">{{ cal_form.start.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {{ cal_form.end.label_tag }} {{ cal_form.end }}
+                            {% if cal_form.end.errors %}<div class="text-danger small">{{ cal_form.end.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-2">
+                            {{ cal_form.event_type.label_tag }} {{ cal_form.event_type }}
+                            {% if cal_form.event_type.errors %}<div class="text-danger small">{{ cal_form.event_type.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-12">
+                            {{ cal_form.notes.label_tag }} {{ cal_form.notes }}
+                            {% if cal_form.notes.errors %}<div class="text-danger small">{{ cal_form.notes.errors.0 }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ปุ่ม submit -->
+                <div class="col-12 d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">💾 <span class="visually-hidden">บันทึก HealthCheck</span>บันทึก HealthCheck</button>
+                    <a href="{% url 'cattle:cattle_detail' cattle.id %}" class="btn btn-secondary ms-2">❌ ยกเลิก</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JS: toggle sections + validate client-side -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleVax = document.getElementById('toggleVax');
+    const toggleRation = document.getElementById('toggleRation');
+    const toggleCal = document.getElementById('toggleCal');
+
+    const vaxSection = document.getElementById('vaxSection');
+    const rationSection = document.getElementById('rationSection');
+    const calSection = document.getElementById('calSection');
+
+    toggleVax.addEventListener('click', ()=> {
+        vaxSection.style.display = vaxSection.style.display === 'none' ? 'block' : 'none';
+    });
+    toggleRation.addEventListener('click', ()=> {
+        rationSection.style.display = rationSection.style.display === 'none' ? 'block' : 'none';
+    });
+    toggleCal.addEventListener('click', ()=> {
+        calSection.style.display = calSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('combinedForm').addEventListener('submit', function(e) {
+        const hd = document.getElementById('id_hc-check_date');
+        if (!hd || hd.value.trim() === '') {
+            alert('กรุณาระบุวันที่ตรวจ (HealthCheck)');
+            hd && hd.focus();
+            e.preventDefault(); return;
+        }
+
+        if (vaxSection.style.display !== 'none') {
+            const vname = document.getElementById('id_vax-vaccine_name');
+            if (vname && vname.value.trim() === '') {
+                alert('กรุณาระบุชื่อวัคซีนหากต้องการเพิ่มวัคซีน');
+                vname.focus(); e.preventDefault(); return;
+            }
+        }
+
+        if (rationSection.style.display !== 'none') {
+            const rid = document.getElementById('id_ration-ration_id');
+            if (rid && rid.value.trim() === '') {
+                alert('กรุณาระบุ Ration ID หากต้องการเพิ่มการให้อาหาร');
+                rid.focus(); e.preventDefault(); return;
+            }
+        }
+
+        if (calSection.style.display !== 'none') {
+            const ctitle = document.getElementById('id_cal-title');
+            const cstart = document.getElementById('id_cal-start');
+            if (ctitle && ctitle.value.trim() === '') {
+                alert('กรุณาระบุหัวข้อกิจกรรม');
+                ctitle.focus(); e.preventDefault(); return;
+            }
+            if (cstart && cstart.value.trim() === '') {
+                alert('กรุณาระบุวัน-เวลาเริ่มกิจกรรม');
+                cstart.focus(); e.preventDefault(); return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

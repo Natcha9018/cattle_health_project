@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}เพิ่มโคใหม่{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3 class="mb-3">🐄 เพิ่มโคใหม่</h3>
+
+    {% if messages %}
+        {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="cattleForm" class="row g-3">
+        {% csrf_token %}
+
+        <!-- Render fields แบบ custom -->
+        <div class="col-md-3">
+            {{ form.tag_no.label_tag }}
+            {{ form.tag_no }}
+            {% if form.tag_no.errors %}<div class="text-danger small">{{ form.tag_no.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.birth_date.label_tag }}
+            {{ form.birth_date }}
+            {% if form.birth_date.errors %}<div class="text-danger small">{{ form.birth_date.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.gender.label_tag }}
+            {{ form.gender }}
+            {% if form.gender.errors %}<div class="text-danger small">{{ form.gender.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.breed.label_tag }}
+            {{ form.breed }}
+            {% if form.breed.errors %}<div class="text-danger small">{{ form.breed.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.category.label_tag }}
+            {{ form.category }}
+            {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.housing.label_tag }}
+            {{ form.housing }}
+            {% if form.housing.errors %}<div class="text-danger small">{{ form.housing.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.mother.label_tag }}
+            {{ form.mother }}
+            {% if form.mother.errors %}<div class="text-danger small">{{ form.mother.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-md-3">
+            {{ form.father.label_tag }}
+            {{ form.father }}
+            {% if form.father.errors %}<div class="text-danger small">{{ form.father.errors.0 }}</div>{% endif %}
+        </div>
+
+        <!-- Status (optional) -->
+        <div class="col-md-3">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+            {% if form.status.errors %}<div class="text-danger small">{{ form.status.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="col-12 text-end mt-3">
+            <button type="submit" class="btn btn-primary">💾 บันทึก</button>
+            <a href="{% url 'cattle:cattle_list' %}" class="btn btn-secondary">❌ ยกเลิก</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById("cattleForm").addEventListener("submit", function(e){
+    let tagNo = document.getElementById("id_tag_no");
+    if(tagNo.value.trim() === ""){
+        tagNo.classList.add("is-invalid");
+        e.preventDefault();
+    } else {
+        tagNo.classList.remove("is-invalid");
+    }
+});
+</script>
+{% endblock %}

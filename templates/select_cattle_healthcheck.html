@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}เลือกโคสำหรับบันทึก HealthCheck{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- ตารางโคทั้งหมด -->
+    <h4>รายการโคทั้งหมด</h4>
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-bordered text-center align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>หมายเลขประจำตัว</th>
+                    <th>ชื่อโค</th>
+                    <th>สายพันธุ์</th>
+                    <th>เพศ</th>
+                    <th>จัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cattle in cattle_list %}
+                    <tr>
+                        <td>{{ cattle.tag_no }}</td>
+                        <td>{{ cattle.name|default:"(ยังไม่มีชื่อ)" }}</td>
+                        <td>{{ cattle.breed|default:"-" }}</td>
+                        <td>
+                            {% if cattle.gender == "male" %}ตัวผู้
+                            {% elif cattle.gender == "female" %}ตัวเมีย
+                            {% else %}-{% endif %}
+                        </td>
+                        <td class="d-flex flex-wrap justify-content-center gap-1">
+                            <a href="{% url 'cattle:add_healthcheck' cattle.id %}" class="btn btn-success btn-sm">
+                                <i class="bi bi-plus-circle"></i> บันทึก HealthCheck
+                            </a>
+                            <a href="{% url 'cattle:cattle_detail' cattle.id %}" class="btn btn-info btn-sm">
+                                รายละเอียด
+                            </a>
+                            <a href="{% url 'cattle:cattle_edit' cattle.id %}" class="btn btn-warning btn-sm">
+                                แก้ไข
+                            </a>
+                            <a href="{% url 'cattle:cattle_delete' cattle.id %}" class="btn btn-danger btn-sm" onclick="return confirm('คุณต้องการลบโค {{ cattle.tag_no }} จริงหรือไม่?');">
+                                ลบ
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">ไม่มีโคในระบบ</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

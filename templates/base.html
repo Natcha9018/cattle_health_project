@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>{% block title %}CowCare{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kanit', sans-serif; background-color: #f8f9fa; }
+
+        .status-badge {
+            font-weight: 600;
+            padding: 0.4em 0.8em;
+            border-radius: 0.3em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3em;
+            font-size: 0.85em;
+        }
+        .status-sick { background-color: #dc3545; color: white; }
+        .status-forsale { background-color: #28a745; color: white; }
+        .status-normal { background-color: #6c757d; color: white; }
+
+        .navbar-brand-custom { font-weight: 600; font-size: 1.5rem; color: white !important; }
+        .offcanvas-header { background-color: #0d6efd; color: white; }
+        .offcanvas-body .nav-link { color: #343a40; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; }
+        .offcanvas-body .nav-link:hover { background-color: #e9ecef; color: #0d6efd; }
+
+        .container { padding-left: 15px; padding-right: 15px; }
+        .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); border: none; }
+
+        @media (max-width: 767.98px) {
+            .container { padding-left: 10px; padding-right: 10px; }
+            h1.h4 { font-size: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand navbar-brand-custom" href="{% url 'cattle:dashboard' %}">
+                <i class="bi bi-cow me-2"></i>CowCare
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" 
+                    data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- ฟอร์มค้นหา -->
+            <div class="d-flex ms-auto me-3">
+                <form class="d-flex" method="get" action="{% url 'cattle:cattle_list' %}">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" 
+                           placeholder="ค้นหาโค(tag_no)" value="{{ request.GET.q }}">
+                    <button class="btn btn-sm btn-light" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+            </div>
+
+            <!-- ปุ่มเพิ่มโคใหม่ และ เพิ่มประวัติรักษา -->
+            <div class="d-flex align-items-center me-3">
+                <a href="{% url 'cattle:cattle_add' %}" class="btn btn-sm btn-success me-2">
+                    <i class="bi bi-plus-circle"></i> เพิ่มโคใหม่
+                </a>
+            </div>
+
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="offcanvasNavbarLabel">เมนู</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'cattle:dashboard' %}">
+                                <i class="bi bi-grid-fill me-2"></i>แดชบอร์ด
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'cattle_list' %}active{% endif %}" href="{% url 'cattle:cattle_list' %}">
+                                <i class="bi bi-info-circle-fill me-2"></i>ข้อมูลประจำตัวโค
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'select_cattle_for_healthcheck' %}active{% endif %}" href="{% url 'cattle:select_cattle_for_healthcheck' %}">
+                                <i class="bi bi-plus-circle-fill me-2"></i>เพิ่มประวัติรักษา
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'farm_calendar' %}active{% endif %}" href="{% url 'cattle:farm_calendar' %}">
+                                <i class="bi bi-calendar-event-fill me-2"></i>ปฏิทินฟาร์ม
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<div class="container my-4">
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

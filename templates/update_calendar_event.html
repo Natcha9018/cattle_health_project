@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}แก้ไขกิจกรรม{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>✏️ แก้ไขกิจกรรม</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>โค</label>
+            <select name="cattle" class="form-control" required>
+                {% for c in cattles %}
+                    <option value="{{ c.id }}" {% if c.id == event.cattle.id %}selected{% endif %}>
+                        {{ c.tag_no }} - {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>ชื่อกิจกรรม</label>
+            <input type="text" name="title" value="{{ event.title }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>วันที่เริ่ม</label>
+            <input type="datetime-local" name="start" value="{{ event.start|date:'Y-m-d\\TH:i' }}" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>วันที่สิ้นสุด</label>
+            <input type="datetime-local" name="end" value="{{ event.end|date:'Y-m-d\\TH:i' }}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>ประเภทกิจกรรม</label>
+            <select name="event_type" class="form-control" required>
+                <option value="feeding" {% if event.event_type == "feeding" %}selected{% endif %}>การให้อาหาร</option>
+                <option value="health" {% if event.event_type == "health" %}selected{% endif %}>การรักษา</option>
+                <option value="breeding" {% if event.event_type == "breeding" %}selected{% endif %}>ผสมพันธุ์</option>
+                <option value="other" {% if event.event_type == "other" %}selected{% endif %}>อื่นๆ</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>หมายเหตุ</label>
+            <textarea name="notes" class="form-control">{{ event.notes }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-warning">บันทึกการแก้ไข</button>
+    </form>
+</div>
+{% endblock %}

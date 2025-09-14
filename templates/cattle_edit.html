@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}แก้ไขข้อมูลโค{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold">แก้ไขข้อมูลโค</h3>
+        <a href="{% url 'cattle:cattle_list' %}" class="btn btn-secondary">← กลับไปหน้ารายการโค</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+
+                <!-- หมายเลขประจำตัว -->
+                <div class="col-md-3">
+                    {{ form.tag_no.label_tag }} {{ form.tag_no }}
+                    {% if form.tag_no.errors %}<div class="text-danger small">{{ form.tag_no.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- ชื่อโค -->
+                <div class="col-md-3">
+                    {{ form.name.label_tag }} {{ form.name }}
+                    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- วันเกิด -->
+                <div class="col-md-3">
+                    {{ form.birth_date.label_tag }} {{ form.birth_date }}
+                    {% if form.birth_date.errors %}<div class="text-danger small">{{ form.birth_date.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- เพศ -->
+                <div class="col-md-3">
+                    {{ form.gender.label_tag }} {{ form.gender }}
+                    {% if form.gender.errors %}<div class="text-danger small">{{ form.gender.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- สายพันธุ์ -->
+                <div class="col-md-3">
+                    {{ form.breed.label_tag }} {{ form.breed }}
+                    {% if form.breed.errors %}<div class="text-danger small">{{ form.breed.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- ประเภท -->
+                <div class="col-md-3">
+                    {{ form.category.label_tag }} {{ form.category }}
+                    {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- คอก/โรงเรือน -->
+                <div class="col-md-3">
+                    {{ form.housing.label_tag }} {{ form.housing }}
+                    {% if form.housing.errors %}<div class="text-danger small">{{ form.housing.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- พ่อ -->
+                <div class="col-md-3">
+                    {{ form.father.label_tag }} {{ form.father }}
+                    {% if form.father.errors %}<div class="text-danger small">{{ form.father.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- แม่ -->
+                <div class="col-md-3">
+                    {{ form.mother.label_tag }} {{ form.mother }}
+                    {% if form.mother.errors %}<div class="text-danger small">{{ form.mother.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- Status ล่าสุด -->
+                <div class="col-md-3">
+                    <label for="id_status">สถานะล่าสุด</label>
+                    <select name="status" id="id_status" class="form-select">
+                        {% for value, label in form.fields.status.choices %}
+                            <option value="{{ value }}" {% if form.initial.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex justify-content-between mt-3">
+                    <button type="submit" class="btn btn-primary">💾 บันทึกการแก้ไข</button>
+                    <a href="{% url 'cattle:cattle_delete' form.instance.id %}" class="btn btn-danger"
+                       onclick="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบโคนี้?');">
+                       🗑️ ลบโค
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

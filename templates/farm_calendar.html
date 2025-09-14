@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}ปฏิทินฟาร์ม{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📅 ปฏิทินฟาร์ม</h2>
+    <a href="{% url 'cattle:add_calendar_event' %}" class="btn btn-success mb-3">
+        ➕ เพิ่มกิจกรรม
+    </a>
+
+    <div id="calendar"></div>
+
+    <h3 class="mt-4">กิจกรรมทั้งหมด</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ชื่อโค</th>
+            <th>ชื่อกิจกรรม</th>
+            <th>วันที่เริ่ม</th>
+            <th>การจัดการ</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr>
+            <td>{{ event.cattle.name|default:event.cattle.tag_no }}</td>
+            <td>{{ event.title }}</td>
+            <td>{{ event.start|date:"Y-m-d" }}</td>
+            <td>
+                <a href="{% url 'cattle:update_calendar_event' event.id %}" class="btn btn-warning btn-sm">✏️ แก้ไข</a>
+                <a href="{% url 'cattle:delete_calendar_event' event.id %}" class="btn btn-danger btn-sm" onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบกิจกรรมนี้?')">🗑️ ลบ</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    selectable: true,
+    editable: true,
+    eventSources: [
+      {
+        url: "{% url 'cattle:farm_calendar_events' %}",
+        method: 'GET',
+      }
+    ],
+    eventClick: function(info) {
+      window.location.href = "/calendar/update-event/" + info.event.id + "/";
+    }
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

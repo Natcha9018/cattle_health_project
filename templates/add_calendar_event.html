@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}เพิ่มกิจกรรมปฏิทิน{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>➕ เพิ่มกิจกรรม</h2>
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>โค</label>
+            <select name="cattle" class="form-control" required>
+                <option value="">-- เลือกโค --</option>
+                {% for c in cattles %}
+                    <option value="{{ c.id }}">{{ c.tag_no }} - {{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>ชื่อกิจกรรม</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>วันที่เริ่ม</label>
+            <input type="datetime-local" name="start" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>วันที่สิ้นสุด</label>
+            <input type="datetime-local" name="end" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <label>ประเภทกิจกรรม</label>
+            <select name="event_type" class="form-control" required>
+                <option value="feeding">การให้อาหาร</option>
+                <option value="health">การรักษา</option>
+                <option value="breeding">ผสมพันธุ์</option>
+                <option value="other">อื่นๆ</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>หมายเหตุ</label>
+            <textarea name="notes" class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success">บันทึก</button>
+    </form>
+</div>
+{% endblock %}
